@@ -19,7 +19,8 @@ start(_Type, _Args) ->
             {'_', [
                 {"/", cowboy_static, {file, "www/index.html", [{mimetypes, cow_mimetypes, all}]}},
                 {"/static/[...]", cowboy_static, {dir, "www", [{mimetypes, cow_mimetypes, all}]}},
-                {"/sock", phone_handler, []},
+                {"/api/phone", api_phone, []},
+                {"/sock", socket_phone, []},
                 {'_', cowboy_static, {file, "static/404.html", [{mimetypes, cow_mimetypes, all}]}}
             ]}
         ])}]}
