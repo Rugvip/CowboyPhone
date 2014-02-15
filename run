@@ -1,0 +1,2 @@
+#! /bin/bash
+erl -pa deps/*/ebin -pa ebin -boot start_sasl -s hello_world_app start
