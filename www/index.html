@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+</head>
+<body>
+<div id="sse">
+   <h1 id="openWs">Open websocket connection</h1>
+   <br/>
+   <h1 id="send">Send Message</h1>
+</div>
+<div id="msgs">
+</div>
+</body>
+<script type="text/javascript">
+(function () {
+    var ws;
+
+    send.onclick = function ()
+    {
+        ws.send("hello world!");
+        console.log('Message sent');
+    }
+
+    openWs.onclick = function ()
+    {
+        console.log("asdasd");
+        if (!("WebSocket" in window)) {
+            alert("This browser does not support WebSockets");
+            return;
+        }
+        /* @todo: Change to your own server IP address */
+        ws = new WebSocket("ws://localhost:8080/sock");
+        ws.onopen = function() {
+            console.log('Connected');
+        };
+        ws.onmessage = function (evt)
+        {
+            var received_msg = evt.data;
+            console.log("Received: " + received_msg);
+            var txt = document.createTextNode("Simon says: " + received_msg );
+            document.getElementById('msgs').appendChild(txt);
+        };
+        ws.onclose = function()
+        {
+            console.log('Connection closed');
+        };
+    }
+}());
+</script>
+</html>

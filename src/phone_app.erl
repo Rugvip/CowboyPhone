@@ -14,12 +14,15 @@ start() ->
     ok.
 
 start(_Type, _Args) ->
-    Dispatch = cowboy_router:compile([
-        %% {URIHost, list({URIPath, Handler, Opts})}
-        {'_', [{'_', phone_handler, []}]}
-    ]),
-    {ok, _} = cowboy:start_http(http, 100, [{port, 8081}], [
-        {env, [{dispatch, Dispatch}]}
+    {ok, _} = cowboy:start_http(http, 100, [{port, 8080}], [
+        {env, [{dispatch, cowboy_router:compile([
+            {'_', [
+                {"/", cowboy_static, {file, "www/index.html", [{mimetypes, cow_mimetypes, all}]}},
+                {"/static/[...]", cowboy_static, {dir, "www", [{mimetypes, cow_mimetypes, all}]}},
+                {"/sock", phone_handler, []},
+                {'_', cowboy_static, {file, "static/404.html", [{mimetypes, cow_mimetypes, all}]}}
+            ]}
+        ])}]}
     ]),
     phone_sup:start_link().
 
