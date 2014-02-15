@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			["*.beam", "erlang.sublime-project"],
+			"follow_symlinks": true,
+			"path": ".",
+			"name": "Cowboy Phone"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true
+	}
+}
