@@ -1,4 +1,4 @@
--module(hello_handler).
+-module(phone_handler).
 -behavior(cowboy_http_handler).
 
 -export([init/3]).
@@ -9,7 +9,7 @@ init(_Type, Req, _Opts) ->
     {ok, Req, undefined_state}.
 
 handle(Req, State) ->
-    Json = mochijson2:encode({struct, [{hello, world}]}),
+    Json = mochijson2:encode({struct, [{yes, this}, {is, dog}]}),
     {ok, Req2} = cowboy_req:reply(200, [
         {<<"content-type">>, <<"application/json">>}
     ], Json, Req),

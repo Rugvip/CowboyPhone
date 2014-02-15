@@ -1,4 +1,4 @@
--module(hello_world_app).
+-module(phone_app).
 -behavior(application).
 
 -export([start/0]).
@@ -10,18 +10,18 @@ start() ->
     application:start(cowlib),
     application:start(ranch),
     application:start(cowboy),
-    application:start(hello_world),
+    application:start(phone),
     ok.
 
 start(_Type, _Args) ->
     Dispatch = cowboy_router:compile([
         %% {URIHost, list({URIPath, Handler, Opts})}
-        {'_', [{'_', hello_handler, []}]}
+        {'_', [{'_', phone_handler, []}]}
     ]),
     {ok, _} = cowboy:start_http(http, 100, [{port, 8081}], [
         {env, [{dispatch, Dispatch}]}
     ]),
-    hello_world_sup:start_link().
+    phone_sup:start_link().
 
 stop(_State) ->
     application:stop(cowboy),

@@ -1,0 +1,13 @@
+{application, phone, [
+    {description, "Banana phone"},
+    {vsn, "0.0.1"},
+    {modules, []},
+    {registered, [phone_sup]},
+    {applications, [
+        kernel,
+        stdlib,
+        cowboy
+    ]},
+    {mod, {phone_app, []}},
+    {env, []}
+]}.

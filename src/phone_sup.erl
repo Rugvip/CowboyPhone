@@ -1,4 +1,4 @@
--module(hello_world_sup).
+-module(phone_sup).
 -behavior(supervisor).
 
 -export([start_link/0]).
