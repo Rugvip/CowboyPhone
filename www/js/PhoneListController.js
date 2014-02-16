@@ -18,5 +18,6 @@ app.controller('PhoneListCtrl', ['$scope', function($scope) {
             number = (Math.random()+"").substr(5, 5);
         }
         $scope.phones.push({number: number, callNumber: ""});
+        $scope.addPhone = "";
     }
 }]);

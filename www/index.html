@@ -14,22 +14,20 @@
 <body ng-controller="PhoneListCtrl">
     <div class="panel panel-default createPhone center-block">
         <input ng-model="addPhone" ng-required="true" type="number" min="10" max="999999">
-        <button type="button" class="btn btn-info btn-lg pull-right">Add</button>
+        <button ng-click="add(addPhone)" type="button" class="btn btn-info btn-lg pull-right">Add</button>
     </div>
-    <div class="row container-fluid">
-        <div class="col-md-2" ng-repeat="phone in phones" ng-controller="PhoneCtrl">
-            <div class="panel panel-default phone col-md-12">
-                <div class="row center-block">
-                    <h2 class="center-block col-md-7">{{ phone.number }}</h2>
-                    <button type="button" class="btn btn-danger col-md-5" ng-click="remove(phone)">Delete</button>
-                </div>
-                <div ng-repeat="row in phone.numpad" class="row btn-group center-block">
-                    <button ng-click="numpadClick(n)" ng-repeat="n in row" class="btn btn-default col-md-4">{{ n }}</button>
-                </div>
-                <div class="number-input row btn-group center-block">
-                    <input class="col-md-8" ng-model="phone.callNumber" min="10" max="999999">
-                    <button type="button" class="btn btn-info col-md-4" ng-click="call(phone)">Call</button>
-                </div>
+    <div class="container-fluid">
+        <div class="panel panel-default phone col-xs-12" ng-repeat="phone in phones" ng-controller="PhoneCtrl">
+            <div class="row center-block">
+                <h2 class="center-block col-xs-7">{{ phone.number }}</h2>
+                <button type="button" class="btn btn-danger col-xs-5" ng-click="remove(phone)">Delete</button>
+            </div>
+            <div ng-repeat="row in phone.numpad" class="row btn-group center-block">
+                <button ng-click="numpadClick(n)" ng-repeat="n in row" class="btn btn-default col-xs-4">{{ n }}</button>
+            </div>
+            <div class="number-input row btn-group center-block">
+                <input class="col-xs-8" ng-model="phone.callNumber" min="10" max="999999">
+                <button type="button" class="btn btn-info col-xs-4" ng-click="call(phone)">Call</button>
             </div>
         </div>
     </div>
