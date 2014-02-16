@@ -2,6 +2,7 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     var phone = $scope.phone;
 
     phone.isShown = phone.id % 2 == 1
+    phone.active = false;
 
     console.log($scope);
     phone.numpad = [[7,8,9],[4,5,6],[1,2,3],['clear', 0, 'del']];
@@ -26,7 +27,17 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     $scope.call = function () {
         console.log("Calling " + phone.callNumber);
     }
-}]);
+
+    $scope.activate = function () {
+        phone.active = true;
+    };
+}])
+.directive('phone', function () {
+    return {
+        restrict: 'E',
+        templateUrl: 'html/phone.html'
+    };
+});
 
 
 /*(function () {

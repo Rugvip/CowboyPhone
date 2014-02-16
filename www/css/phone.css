@@ -1,11 +1,53 @@
+.custom-enter,
+.custom-leave,
+.custom-move {
+  -webkit-transition: 1s linear all;
+  -moz-transition: 1s linear all;
+  -o-transition: 1s linear all;
+  transition: 1s linear all;
+  position:relative;
+}
+
+.custom-enter {
+  left:-10px;
+  opacity:0;
+}
+.custom-enter.custom-enter-active {
+  left:0;
+  opacity:1;
+}
+
+.custom-leave {
+  left:0;
+  opacity:1;
+}
+.custom-leave.custom-leave-active {
+  left:-10px;
+  opacity:0;
+}
+
+.custom-move {
+  opacity:0.5;
+}
+.custom-move.custom-move-active {
+  opacity:1;
+}
+
 .phone {
     margin-top: 0;
     margin-left: 1em;
     padding-top: 1em;
-    padding-bottom: 1em;
     width: 16em;
     /*margin-left: 5px;*/
     /*margin-right: 5px;*/
+}
+
+.phone > .active {
+    padding-bottom: 1em;
+}
+
+.phone > .inactive {
+    padding-bottom: 0;
 }
 
 .createPhone {

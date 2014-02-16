@@ -11,6 +11,7 @@ start() ->
     application:start(ranch),
     application:start(cowboy),
     application:start(phone),
+    hlr:start_link(),
     ok.
 
 start(_Type, _Args) ->
@@ -20,6 +21,7 @@ start(_Type, _Args) ->
                 {"/", cowboy_static, {file, "www/index.html", [{mimetypes, cow_mimetypes, all}]}},
                 {"/js/[...]", cowboy_static, {dir, "www/js", [{mimetypes, cow_mimetypes, all}]}},
                 {"/css/[...]", cowboy_static, {dir, "www/css", [{mimetypes, cow_mimetypes, all}]}},
+                {"/html/[...]", cowboy_static, {dir, "www/html", [{mimetypes, cow_mimetypes, all}]}},
                 {"/api/phone", api_phone, []},
                 {"/sock", socket_phone, []},
                 {'_', cowboy_static, {file, "www/404.html", [{mimetypes, cow_mimetypes, all}]}}
@@ -29,6 +31,7 @@ start(_Type, _Args) ->
     phone_sup:start_link().
 
 stop(_State) ->
+    hlr:stop(),
     application:stop(cowboy),
     application:stop(ranch),
     application:stop(cowlib),

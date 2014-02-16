@@ -1,0 +1,96 @@
+<div
+    class="panel panel-default phone col-xs-12"
+    ng-controller="PhoneCtrl"
+    ng-switch="phone.active"
+    ng-animate="'custom'"
+>
+    <div
+        class="active"
+        ng-switch-when="true"
+    >
+        <div
+            class="row center-block"
+        >
+            <h2
+                class="center-block col-xs-7"
+            >
+                {{ phone.number }}
+            </h2>
+            <button
+                class="btn btn-danger col-xs-5"
+                type="button"
+                ng-click="remove(phone)"
+            >
+                Delete
+            </button>
+        </div>
+
+        <div
+            class="row btn-group center-block"
+            ng-repeat="row in phone.numpad"
+        >
+            <button
+                class="btn btn-default col-xs-4"
+                ng-click="numpadClick(n)"
+                ng-repeat="n in row"
+            >
+                {{ n }}
+            </button>
+        </div>
+
+        <div
+            class="number-input row btn-group center-block"
+        >
+            <input
+                class="col-xs-8"
+                ng-model="phone.callNumber"
+                min="10"
+                max="999999"
+            >
+            <button
+                class="btn btn-info col-xs-4"
+                type="button"
+                ng-click="call(phone)"
+            >
+                Call
+            </button>
+        </div>
+    </div>
+
+    <div
+        class="inactive"
+        ng-switch-when="false"
+    >
+        <div
+            class="row center-block"
+        >
+            <h2
+                class="center-block col-xs-7"
+            >
+                {{ phone.number }}
+            </h2>
+            <button
+                class="btn btn-success col-xs-5"
+                type="button"
+                ng-click="activate(phone)"
+            >
+                Activate
+            </button>
+        </div>
+    </div>
+
+    <div
+        class="animate-switch"
+        ng-switch-default
+    >
+        Switch failed
+    </div>
+</div>
+<div ng-controller="PhoneCtrl">
+    <button class="btn btn-default" ng-click="isCollapsed = !isCollapsed">Toggle collapse</button>
+    <hr>
+    <div collapse="isCollapsed">
+        <div class="well well-lg">Some content</div>
+    </div>
+    {{ isCollapsed }}
+</div>

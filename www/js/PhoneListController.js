@@ -1,15 +1,18 @@
-app.controller('PhoneListCtrl', ['$scope', function($scope) {
-    $scope.phones = [
-        {number:"16123", callNumber: "1512"},
-        {number:"27625", callNumber: "2269"},
-        {number:"38641", callNumber: "3302"},/*
-        {number:"49642", callNumber: "4282"},
-        {number:"51643", callNumber: "5290"},
-        {number:"62645", callNumber: "6292"},
-        {number:"73629", callNumber: "7285"},*/
-        {number:"84646", callNumber: "8286"},
-        {number:"95633", callNumber: "9293"}
-    ];
+app.controller('PhoneListCtrl',
+           ['$scope', '$http',
+    function($scope ,  $http) {
+
+    $scope.phones = [];
+    $scope.isCollapsed = false
+    $http({method: 'GET', url: '/api/phone'})
+        .success(function (data, status, headers) {
+            console.log(data);
+            $scope.phones = data;
+        })
+        .error(function (data, status) {
+            alert("Phone fetch failed: " + status);
+        });
+
     $scope.remove = function (phone) {
         $scope.phones.splice($scope.phones.indexOf(phone), 1);
     };
