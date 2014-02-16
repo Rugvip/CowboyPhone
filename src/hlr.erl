@@ -1,7 +1,7 @@
 -module(hlr).
 -behaviour(gen_server).
 
--export([start_link/0, attach/1, detach/0, lookup_id/1, lookup_phone/1, lookup/1]).
+-export([start_link/0, attach/1, detach/0, lookup_id/1, lookup_phone/1, list_numbers/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(st, {db}).
@@ -22,9 +22,7 @@ lookup_id(Number) when is_list(Number) ->
 lookup_phone(Pid) when is_pid(Pid) ->
     gen_server:call(?MODULE, {lookup_phone, Pid}).
 
-lookup(Pid) when is_pid(Pid) -> lookup_phone(Pid);
-lookup(Number) when is_list(Number) -> lookup_id(Number).
-
+list_numbers() -> gen_server:call(?MODULE, list_numbers).
 
 % gen_server
 
@@ -44,7 +42,10 @@ handle_call({lookup_id, Number}, _, #st{db = Db} = State) ->
     {reply, ?DB_IMPL:lookup_id(Db, Number), State};
 
 handle_call({lookup_phone, Pid}, _, #st{db = Db} = State) ->
-    {reply, ?DB_IMPL:lookup_phone(Db, Pid), State}.
+    {reply, ?DB_IMPL:lookup_phone(Db, Pid), State};
+
+handle_call(list_numbers, _, #st{db = Db} = State) ->
+    {reply, ?DB_IMPL:list_numbers(Db), State}.
 
 
 handle_cast(Request, State) ->

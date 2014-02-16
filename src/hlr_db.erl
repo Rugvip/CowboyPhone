@@ -1,5 +1,11 @@
 -module(hlr_db).
--export([new/1, destroy/1, attach/3, detach/2, lookup_id/2, lookup_phone/2]).
+-export([new/1]).
+-export([destroy/1]).
+-export([attach/3]).
+-export([detach/2]).
+-export([lookup_id/2]).
+-export([lookup_phone/2]).
+-export([list_numbers/1]).
 
 new([]) -> ets:new(?MODULE, []).
 
@@ -24,3 +30,6 @@ lookup_phone(Db, Pid) ->
         [Number] -> {ok, Number};
         [] -> {error, invalid}
     end.
+
+list_numbers(Db) ->
+    {ok, ets:select(Db, [{{'_', '$1'}, [], ['$1']}])}.
