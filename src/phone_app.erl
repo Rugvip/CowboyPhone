@@ -18,7 +18,8 @@ start(_Type, _Args) ->
         {env, [{dispatch, cowboy_router:compile([
             {'_', [
                 {"/", cowboy_static, {file, "www/index.html", [{mimetypes, cow_mimetypes, all}]}},
-                {"/static/[...]", cowboy_static, {dir, "static", [{mimetypes, cow_mimetypes, all}]}},
+                {"/js/[...]", cowboy_static, {dir, "www/js", [{mimetypes, cow_mimetypes, all}]}},
+                {"/css/[...]", cowboy_static, {dir, "www/css", [{mimetypes, cow_mimetypes, all}]}},
                 {"/api/phone", api_phone, []},
                 {"/sock", socket_phone, []},
                 {'_', cowboy_static, {file, "www/404.html", [{mimetypes, cow_mimetypes, all}]}}

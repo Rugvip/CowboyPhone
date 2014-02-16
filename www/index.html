@@ -1,57 +1,80 @@
 <!DOCTYPE HTML>
-<html>
+<html ng-app="phone">
 <head>
    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+   <link rel="stylesheet" href="css/phone.css">
+   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.js"></script>
    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap.js"></script>
    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
    <script src="//cdnjs.cloudflare.com/ajax/libs/ng-grid/2.0.7/ng-grid.min.js"></script>
 </head>
-<body>
-<div id="sse">
-   <h1 id="openWs">Open websocket connection</h1>
-   <br/>
-   <h1 id="send">Send Message</h1>
-</div>
-<div id="msgs">
-</div>
+<body ng-controller="PhoneListCtrl">
+    <div class="panel panel-default createPhone center-block">
+        <input ng-model="addPhone" ng-required="true" type="number" min="10" max="999999">
+        <button type="button" class="btn btn-info btn-lg pull-right">Add</button>
+    </div>
+    <div class="row container-fluid">
+        <div class="col-md-2" ng-repeat="phone in phones" ng-controller="PhoneCtrl">
+            <div class="panel panel-default phone col-md-12">
+                <div class="row center-block">
+                    <h2 class="center-block col-md-7">{{ phone.number }}</h2>
+                    <button type="button" class="btn btn-danger col-md-5" ng-click="remove(phone)">Delete</button>
+                </div>
+                <div ng-repeat="row in phone.numpad" class="row btn-group center-block">
+                    <button ng-click="numpadClick(n)" ng-repeat="n in row" class="btn btn-default col-md-4">{{ n }}</button>
+                </div>
+                <div class="number-input row btn-group center-block">
+                    <input class="col-md-8" ng-model="phone.callNumber" min="10" max="999999">
+                    <button type="button" class="btn btn-info col-md-4" ng-click="call(phone)">Call</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
-<script type="text/javascript">
-(function () {
-    var ws;
+<footer>
+    <script type="text/javascript">
+    (function () {
+        var ws;
+        var send = {};
+        var openWs = {};
 
-    send.onclick = function ()
-    {
-        ws.send("hello world!");
-        console.log('Message sent');
-    }
-
-    openWs.onclick = function ()
-    {
-        console.log("asdasd");
-        if (!("WebSocket" in window)) {
-            alert("This browser does not support WebSockets");
-            return;
+        send.onclick = function ()
+        {
+            ws.send("hello world!");
+            console.log('Message sent');
         }
-        /* @todo: Change to your own server IP address */
-        ws = new WebSocket("ws://localhost:8080/sock");
-        ws.onopen = function() {
-            console.log('Connected');
-        };
-        ws.onmessage = function (evt)
+
+        openWs.onclick = function ()
         {
-            var received_msg = evt.data;
-            console.log("Received: " + received_msg);
-            var txt = document.createTextNode("Simon says: " + received_msg );
-            document.getElementById('msgs').appendChild(txt);
-        };
-        ws.onclose = function()
-        {
-            console.log('Connection closed');
-        };
-    }
-}());
-</script>
+            console.log("asdasd");
+            if (!("WebSocket" in window)) {
+                alert("This browser does not support WebSockets");
+                return;
+            }
+            /* @todo: Change to your own server IP address */
+            ws = new WebSocket("ws://localhost:8080/sock");
+            ws.onopen = function() {
+                console.log('Connected');
+            };
+            ws.onmessage = function (evt)
+            {
+                var received_msg = evt.data;
+                console.log("Received: " + received_msg);
+                var txt = document.createTextNode("Simon says: " + received_msg );
+                document.getElementById('msgs').appendChild(txt);
+            };
+            ws.onclose = function()
+            {
+                console.log('Connection closed');
+            };
+        }
+    }());
+    </script>
+    <script src="/js/app.js"></script>
+    <script src="/js/PhoneController.js"></script>
+    <script src="/js/PhoneListController.js"></script>
+</footer>
 </html>
