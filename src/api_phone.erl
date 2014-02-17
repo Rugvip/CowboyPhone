@@ -31,9 +31,24 @@ delete_resource(Req, State) -> {false, Req, State}.
 is_conflict(Req, State) -> {false, Req, State}.
 
 on_post_request(Req, State) ->
-    Json = mochijson2:encode({struct, [{herp, derp}, {is, dog}]}),
-    {true, cowboy_req:set_resp_body(Json, Req), State}.
+    {ok, Data, Req2} = cowboy_req:body(Req),
+    Post = mochijson2:decode(Data),
+    Json = mochijson2:encode(process_post(Post)),
+    {true, cowboy_req:set_resp_body(Json, Req2), State}.
 
 on_get_request(Req, State) ->
-    Json = mochijson2:encode({struct, [{yes, this}, {is, dog}]}),
+    Json = mochijson2:encode(list_phones()),
     {Json, Req, State}.
+
+
+process_post(Json) ->
+    {struct, KeyVals} = Json,
+    io:format("Json KeyVals: ~p~n", [KeyVals]),
+    {<<"number">>, NumberBin} = lists:keyfind(<<"number">>, 1, KeyVals),
+    Number = binary_to_list(NumberBin),
+    phone_fsm:start_link(Number),
+    list_phones().
+
+list_phones() ->
+    {ok, List} = hlr:list_numbers(),
+    [{struct, [{number, list_to_binary(Number)}]} || Number <- List].
