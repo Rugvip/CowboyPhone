@@ -1,30 +1,56 @@
 <div
     class="panel panel-default phone col-xs-12"
     ng-controller="PhoneCtrl"
-    ng-switch="phone.active"
-    ng-animate="'custom'"
+    ng-animate=" 'animate' "
 >
     <div
-        class="active"
-        ng-switch-when="true"
+        ng-switch="phone.active"
     >
         <div
-            class="row center-block"
+            class="row"
+            ng-switch-when="true"
         >
             <h2
-                class="center-block col-xs-7"
+                class="col-xs-6"
             >
                 {{ phone.number }}
             </h2>
             <button
                 class="btn btn-danger col-xs-5"
                 type="button"
-                ng-click="remove(phone)"
+                ng-click="deactivate()"
             >
-                Delete
+                Deactivate
             </button>
         </div>
-
+        <div
+            class="row inactive"
+            ng-switch-when="false"
+        >
+            <h2
+                class="col-xs-6"
+            >
+                {{ phone.number }}
+            </h2>
+            <button
+                class="btn btn-success col-xs-5"
+                type="button"
+                ng-click="activate()"
+            >
+                Activate
+            </button>
+        </div>
+        <div
+            class="animate-switch"
+            ng-switch-default
+        >
+            Switch failed
+        </div>
+    </div>
+    <div
+        class="active"
+        collapse="!phone.active"
+    >
         <div
             class="row btn-group center-block"
             ng-repeat="row in phone.numpad"
@@ -56,41 +82,4 @@
             </button>
         </div>
     </div>
-
-    <div
-        class="inactive"
-        ng-switch-when="false"
-    >
-        <div
-            class="row center-block"
-        >
-            <h2
-                class="center-block col-xs-7"
-            >
-                {{ phone.number }}
-            </h2>
-            <button
-                class="btn btn-success col-xs-5"
-                type="button"
-                ng-click="activate(phone)"
-            >
-                Activate
-            </button>
-        </div>
-    </div>
-
-    <div
-        class="animate-switch"
-        ng-switch-default
-    >
-        Switch failed
-    </div>
-</div>
-<div ng-controller="PhoneCtrl">
-    <button class="btn btn-default" ng-click="isCollapsed = !isCollapsed">Toggle collapse</button>
-    <hr>
-    <div collapse="isCollapsed">
-        <div class="well well-lg">Some content</div>
-    </div>
-    {{ isCollapsed }}
 </div>

@@ -31,6 +31,10 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     $scope.activate = function () {
         phone.active = true;
     };
+
+    $scope.deactivate = function () {
+        phone.active = false;
+    };
 }])
 .directive('phone', function () {
     return {
