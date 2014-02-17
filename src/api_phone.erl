@@ -47,8 +47,10 @@ process_post(Json) ->
     {<<"number">>, NumberBin} = lists:keyfind(<<"number">>, 1, KeyVals),
     Number = binary_to_list(NumberBin),
     phone_fsm:start_link(Number),
-    list_phones().
+    make_phone(Number).
 
 list_phones() ->
     {ok, List} = hlr:list_numbers(),
-    [{struct, [{number, list_to_binary(Number)}]} || Number <- List].
+    [make_phone(Number) || Number <- List].
+
+make_phone(Number) -> {struct, [{number, list_to_binary(Number)}]}.
