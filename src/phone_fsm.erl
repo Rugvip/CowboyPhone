@@ -137,7 +137,7 @@ handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{remote_mon = Ref} = St
 handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{phone_mon = Ref} = State) ->
     case State#st.remote_mon of
         undefined -> ok;
-        Ref -> demonitor(Ref)
+        Mon -> demonitor(Mon)
     end,
     {next_state, idle, State#st{
         phone_mon = undefined, phone = undefined,
