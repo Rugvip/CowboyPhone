@@ -8,21 +8,21 @@
 -define(DB_IMPL, hlr_db).
 
 start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []), ok.
+    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []), {ok, self()}.
 
 attach(Number) when is_list(Number) ->
-    gen_server:call(?MODULE, {attach, Number}).
+    gen_server:call({global, ?MODULE}, {attach, Number}).
 
 detach() ->
-    gen_server:call(?MODULE, detach).
+    gen_server:call({global, ?MODULE}, detach).
 
 lookup_id(Number) when is_list(Number) ->
-    gen_server:call(?MODULE, {lookup_id, Number}).
+    gen_server:call({global, ?MODULE}, {lookup_id, Number}).
 
 lookup_phone(Pid) when is_pid(Pid) ->
-    gen_server:call(?MODULE, {lookup_phone, Pid}).
+    gen_server:call({global, ?MODULE}, {lookup_phone, Pid}).
 
-list_numbers() -> gen_server:call(?MODULE, list_numbers).
+list_numbers() -> gen_server:call({global, ?MODULE}, list_numbers).
 
 % gen_server
 

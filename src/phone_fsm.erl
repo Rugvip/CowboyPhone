@@ -22,6 +22,7 @@ reject(RemotePid)  -> send_to_remote(RemotePid, reject).
 accept(RemotePid)  -> send_to_remote(RemotePid, accept).
 hangup(RemotePid)  -> send_to_remote(RemotePid, hangup).
 inbound(RemotePid) -> send_to_remote(RemotePid, inbound).
+data(RemotePid, Data) -> send_to_remote(RemotePid, {data, Data}).
 
 reply(Msg, NextState, #st{phone = Phone} = State) ->
     phone:reply(Phone, Msg),
@@ -30,6 +31,7 @@ reply(Msg, NextState, #st{phone = Phone} = State) ->
 % gen_fsm
 
 init(PhoneNumber) ->
+    process_flag(trap_exit, true),
     hlr:attach(PhoneNumber),
     {ok, idle, #st{}}.
 
@@ -78,14 +80,21 @@ connected({remote, From, hangup}, #st{remote = From} = State) ->
     reply(hangup, idle, State#st{remote = undefined});
 connected({local, hangup}, State) ->
     hangup(State#st.remote), switch_state(idle, State#st{remote = undefined});
+connected({local, {data, Data}}, State) ->
+    data(State#st.remote, Data),
+    {next_state, connected, State};
+connected({remote, _, {data, _} = Data}, State) ->
+    State#st.phone ! Data,
+    {next_state, connected, State};
 connected(_, State) ->
     {next_state, connected, State}.
 
 handle_info(Info, StateName, State) ->
     io:format("Got info: ~p~n", [Info]),
-    switch_state(StateName, State).
+    {next_state, StateName, State}.
 
 terminate(_Reason, _StateName, _State) ->
+    io:format("FSM terminating, detach~n"),
     hlr:detach(),
     ok.
 

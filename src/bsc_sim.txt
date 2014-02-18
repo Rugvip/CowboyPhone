@@ -1,0 +1,58 @@
+The main simulator is in the module bsc_sim. Before running the
+simulator you must first start the HLR. The simulator will create and
+initialise the phones. When you start the simulator you give how many
+milliseconds between each call attempt, for each call it will randomly
+choose phoes and then sets a call between them. The interface is:
+
+bsc_sim:start_link(NumberOfPhones) -> {ok, SimPid}.
+
+Start the simulator with NumberOfPhones phones.
+
+bsc_sim:stop(SimPid) -> ok.
+
+Stop the simulator. Currently this does not remove all the phones.
+
+bsc_sim:start_run(SimPid, Tick) -> ok.
+
+Start the simulation run with Tick milliseconds between each call attempt. The call count is reset every time a run is started.
+
+bsc_sim:stop_run(SimPid) -> ok.
+
+Stop the simulation run
+
+bsc_sim:get_status(SimPid) -> Count.
+
+Return the number of call attempts since the run started.
+
+Here is an example run starting 10000 phones with 10 msecs between
+each call attempt.
+
+Erlang R16B02 (erts-5.10.3) [source-b44b726] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false]
+
+Eshell V5.10.3  (abort with ^G)
+1> {ok,HLR} = hlr:start_link().
+{ok,<0.34.0>}
+2> {ok,Sim} = bsc_sim:start_link(10000).
+{ok,<0.36.0>}
+3> bsc_sim:start_run(Sim, 10).
+ok
+4> bsc_sim:get_status(Sim).
+2395
+5> bsc_sim:get_status(Sim).
+8713
+6> bsc_sim:stop_run(Sim).  
+ok
+7> bsc_sim:get_status(Sim).
+10078
+8>
+
+Note: This tool is NOT intended to test your phone FSM, it assumes
+that it works.
+
+Note: This tool requires a special phone simulator in the module
+phone_sim.erl and WILL NOT work with the default phone.erl included to
+test and run your phone_fsm.erl. The simulator specifically calls the
+phone_sim module and assumes its behaviour. Changing that module can
+lead to "interesting" results. The phone_sim module is interesting in
+itself as it is an FSM wrapped in a client server which emulates the
+default phone.erl but has a predefined behaviour.

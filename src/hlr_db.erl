@@ -7,7 +7,7 @@
 -export([lookup_phone/2]).
 -export([list_numbers/1]).
 
-new([]) -> ets:new(?MODULE, []).
+new([]) -> ets:new(?MODULE, [ordered_set]).
 
 destroy(Db) -> ets:delete(Db), ok.
 

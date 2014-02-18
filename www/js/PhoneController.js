@@ -33,7 +33,11 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
 
         $scope.call = function (number) {
             console.log("Calling " + number);
-            ws.action({call: number});
+            if (phone.state === 'connected') {
+                ws.data("HI DAWG " + number);
+            } else {
+                ws.action({call: number});
+            }
         }
 
         $scope.accept = function () {ws.action('accept'); }
@@ -86,6 +90,10 @@ function openWebSocket($scope, callback) {
         action: function (action) {
             console.log("Sending action ", action);
             ws.send(JSON.stringify({action: action}));
+        },
+        data: function (data) {
+            console.log("Sending data ", data);
+            ws.send(JSON.stringify({data: data}));
         }
     };
 }

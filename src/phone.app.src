@@ -1,8 +1,8 @@
 {application, phone, [
-    {description, "Banana phone"},
+    {description, "THEN WHO WAS PHONE?"},
     {vsn, "0.0.1"},
     {modules, []},
-    {registered, [phone_sup]},
+    {registered, [phone_sup, hlr, bsc_fsm]},
     {applications, [
         kernel,
         stdlib,

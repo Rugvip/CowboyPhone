@@ -1,4 +1,4 @@
--module(api_phone).
+-module(phone_rest).
 
 -export([init/3]).
 -export([rest_init/2]).
@@ -46,7 +46,7 @@ process_post(Json) ->
     io:format("Json KeyVals: ~p~n", [KeyVals]),
     {<<"number">>, NumberBin} = lists:keyfind(<<"number">>, 1, KeyVals),
     Number = binary_to_list(NumberBin),
-    phone_fsm:start_link(Number),
+    bsc_sup:add_controller(Number),
     make_phone(Number).
 
 list_phones() ->

@@ -26,19 +26,18 @@ websocket_init(_Any, Req, []) ->
     Req3 = cowboy_req:compact(Req2),
     {ok, Req3, #st{fsm = Fsm}, hibernate}.
 
-process_message({struct, [{<<"action">>, Action}]}, State) ->
-    handle_message(Action, State), ok;
+process_message({struct, [{<<"action">>, <<"accept">>}]}, State) ->
+    action(accept, State), ok;
+process_message({struct, [{<<"action">>, <<"reject">>}]}, State) ->
+    action(accept, State), ok;
+process_message({struct, [{<<"action">>, <<"hangup">>}]}, State) ->
+    action(accept, State), ok;
+process_message({struct, [{<<"action">>, {struct, [{<<"call">>, Number}]}}]}, State) ->
+    action({outbound, binary_to_list(Number)}, State);
+process_message({struct, [{<<"data">>, Data}]}, State) ->
+    action({data, Data}, State), ok;
 process_message(_, _) ->
     json([{error, 'bad request'}, {status, '400'}]).
-
-handle_message(<<"accept">>, State) ->
-    action(accept, State);
-handle_message(<<"reject">>, State) ->
-    action(reject, State);
-handle_message(<<"hangup">>, State) ->
-    action(hangup, State);
-handle_message({struct, [{<<"call">>, Number}]}, State) ->
-    action({outbound, binary_to_list(Number)}, State).
 
 action(Action, #st{fsm = Fsm}) ->
     io:format("Sending ~p to ~p~n", [Action, Fsm]),
@@ -66,6 +65,8 @@ websocket_info({init, busy}, Req, State) ->
     reply(Req, State, none, busy);
 websocket_info({switch_state, NextState, Action}, Req, State) ->
     reply(Req, State, NextState, Action);
+websocket_info({data, Data}, Req, State) ->
+    {reply, {text, mochijson2:encode({struct, [{<<"data">>, Data}]})}, Req, State};
 websocket_info(Msg, Req, State) ->
     io:format("Other system message: ~p~n", [Msg]),
     {ok, Req, State, hibernate}.
