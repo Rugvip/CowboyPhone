@@ -3,7 +3,7 @@
 -export([start_link/1, stop/1, connect/1, disconnect/1, action/2]).
 -export([init/1, idle/2, calling/2, receiving/2, connected/2, handle_info/3, terminate/3, handle_sync_event/4]).
 
--record(st, {phone, remote}).
+-record(st, {phone, remote, remote_mon, phone_mon}).
 
 start_link(PhoneNumber) ->
     gen_fsm:start_link(?MODULE, PhoneNumber, [{debug, [trace]}]).
@@ -30,65 +30,119 @@ reply(Msg, NextState, #st{phone = Phone} = State) ->
 
 % gen_fsm
 
-init(PhoneNumber) ->
-    process_flag(trap_exit, true),
-    hlr:attach(PhoneNumber),
-    {ok, idle, #st{}}.
+set_remote(State, Remote) ->
+    Ref = monitor(process, Remote),
+    State#st{remote = Remote, remote_mon = Ref}.
+
+unset_remote(State) ->
+    demonitor(State#st.remote_mon),
+    State#st{remote_mon = undefined, remote = undefined}.
 
 switch_state(NextState, Action, #st{phone = Phone} = State) ->
     Phone ! {switch_state, NextState, Action},
     {next_state, NextState, State}.
 switch_state(NextState, State) -> switch_state(NextState, undefined, State).
 
+% gen_fsm callbacks
+
+%      ######  ########
+%     ##    ## ##     ##
+%     ##       ##     ##
+%     ##       ########
+%     ##       ##     ##
+%     ##    ## ##     ##
+%      ######  ########
+
+init(PhoneNumber) ->
+    process_flag(trap_exit, true),
+    hlr:attach(PhoneNumber),
+    {ok, idle, #st{}}.
+
+
 idle({local, {outbound, Number}}, State) ->
-    {ok, Remote} = hlr:lookup_id(Number),
-    inbound(Remote),
-    switch_state(calling, State#st{remote = Remote});
+    case hlr:lookup_id(Number) of
+        {error, invalid} -> {next_state, idle, State};
+        {ok, Remote} ->
+            inbound(Remote),
+            switch_state(calling, set_remote(State, Remote))
+    end;
+
 idle({remote, From, inbound}, State) ->
     {ok, Number} = hlr:lookup_phone(From),
-    reply({inbound, Number}, receiving, State#st{remote = From});
+    reply({inbound, Number}, receiving, set_remote(State, From));
+
 idle(_, State) ->
     {next_state, idle, State}.
 
+
 calling({remote, From, inbound}, State) ->
     busy(From), {next_state, calling, State};
+
 calling({remote, From, accept}, #st{remote = From} = State) ->
+
     reply(accept, connected, State);
+
 calling({remote, From, rejected}, #st{remote = From} = State) ->
-    reply(reject, idle, State#st{remote = undefined});
+    reply(reject, idle, unset_remote(State));
+
 calling({remote, From, busy}, #st{remote = From} = State) ->
-    reply(busy, idle, State#st{remote = undefined});
+    reply(busy, idle, unset_remote(State));
+
 calling({local, hangup}, State) ->
-    hangup(State#st.remote), switch_state(idle, State#st{remote = undefined});
+    hangup(State#st.remote), switch_state(idle, unset_remote(State));
+
 calling(_, State) ->
     {next_state, calling, State}.
 
+
 receiving({remote, From, inbound}, State) ->
     busy(From), {next_state, receiving, State};
+
 receiving({remote, From, hangup}, #st{remote = From} = State) ->
-    reply(hangup, idle, State#st{remote = undefined});
+    reply(hangup, idle, unset_remote(State));
+
 receiving({local, accept}, State) ->
     accept(State#st.remote), switch_state(connected, State);
+
 receiving({local, reject}, State) ->
-    reject(State#st.remote), switch_state(idle, State#st{remote = undefined});
+    reject(State#st.remote), switch_state(idle, unset_remote(State));
+
 receiving(_, State) ->
     {next_state, receiving, State}.
 
+
 connected({remote, From, inbound}, State) ->
     busy(From), {next_state, connected, State};
+
 connected({remote, From, hangup}, #st{remote = From} = State) ->
-    reply(hangup, idle, State#st{remote = undefined});
+    reply(hangup, idle, unset_remote(State));
+
 connected({local, hangup}, State) ->
-    hangup(State#st.remote), switch_state(idle, State#st{remote = undefined});
+    hangup(State#st.remote), switch_state(idle, unset_remote(State));
+
 connected({local, {data, Data}}, State) ->
     data(State#st.remote, Data),
     {next_state, connected, State};
+
 connected({remote, _, {data, _} = Data}, State) ->
     State#st.phone ! Data,
     {next_state, connected, State};
+
 connected(_, State) ->
     {next_state, connected, State}.
 
+
+handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{remote_mon = Ref} = State) ->
+    switch_state(idle, remote_down, State#st{remote_mon = undefined, remote = undefined});
+handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{phone_mon = Ref} = State) ->
+    case State#st.remote_mon of
+        undefined -> ok;
+        Ref -> demonitor(Ref)
+    end,
+    {next_state, idle, State#st{
+        phone_mon = undefined, phone = undefined,
+        remote_mon = undefined, remote = undefined
+    }};
 handle_info(Info, StateName, State) ->
     io:format("Got info: ~p~n", [Info]),
     {next_state, StateName, State}.
@@ -100,11 +154,14 @@ terminate(_Reason, _StateName, _State) ->
 
 handle_sync_event(connect, {Pid, _}, StateName, State) ->
     case State#st.phone of
-        undefined -> {reply, ok, StateName, State#st{phone = Pid}};
+        undefined ->
+            Mon = monitor(process, Pid),
+            {reply, ok, StateName, State#st{phone = Pid, phone_mon = Mon}};
         _ -> {reply, busy, StateName, State}
     end;
 handle_sync_event(disconnect, {Pid, _}, StateName, #st{phone = Pid} = State) ->
-    {reply, ok, StateName, State#st{phone = undefined}};
+    demonitor(State#st.phone_mon),
+    {reply, ok, StateName, State#st{phone_mon = undefined, phone = undefined}};
 handle_sync_event(stop, _, StateName, State) ->
     {stop, normal, StateName, State#st{phone = undefined}}.
 

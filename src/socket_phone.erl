@@ -7,7 +7,7 @@
 % Behaviour cowboy_http_websocket_handler
 -export([websocket_init/3, websocket_handle/3, websocket_info/3, websocket_terminate/3]).
 
--record(st, {fsm}).
+-record(st, {fsm, fsm_mon}).
 
 init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
@@ -59,14 +59,18 @@ websocket_handle(_Any, Req, State) ->
 
 % Other messages from the system are handled here.
 websocket_info(stop, Req, State) -> {shutdown, Req, State};
-websocket_info({init, ok}, Req, State) ->
-    reply(Req, State, idle, undefined);
+websocket_info({init, ok}, Req, #st{fsm = Fsm} = State) ->
+    Ref = monitor(process, Fsm),
+    reply(Req, State#st{fsm_mon = Ref}, idle, undefined);
 websocket_info({init, busy}, Req, State) ->
     reply(Req, State, none, busy);
 websocket_info({switch_state, NextState, Action}, Req, State) ->
     reply(Req, State, NextState, Action);
 websocket_info({data, Data}, Req, State) ->
     {reply, {text, mochijson2:encode({struct, [{<<"data">>, Data}]})}, Req, State};
+websocket_info({'DOWN', Ref, process, _, _}, Req, #st{fsm_mon = Ref} = State) ->
+    self() ! stop,
+    reply(Req, State, undefined, deleted);
 websocket_info(Msg, Req, State) ->
     io:format("Other system message: ~p~n", [Msg]),
     {ok, Req, State, hibernate}.
