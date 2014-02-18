@@ -4,43 +4,47 @@
     ng-animate=" 'animate' "
 >
     <div ng-switch="phone.state">
-        <div class="row" ng-switch-when="none">
+        <div class="row center-block" ng-switch-when="none">
             <h2 class="col-xs-6">
                 {{ phone.number }}
             </h2>
-            <button class="btn btn-success col-xs-5" ng-click="activate()">
+            <button class="btn btn-success col-xs-6" ng-click="activate()">
                 Connect
             </button>
         </div>
-        <div class="row" ng-switch-when="connecting">
+        <div class="row center-block" ng-switch-when="connecting">
             <h2 class="col-xs-6">
                 {{ phone.number }}
             </h2>
             <button
-                class="btn btn-info col-xs-5"
+                class="btn btn-info col-xs-6"
             >
                 Connecting
             </button>
         </div>
-        <div class="row" ng-switch-default>
+        <div class="row center-block" ng-switch-default>
             <h2 class="col-xs-6">
                 {{ phone.number }}
             </h2>
-            <button class="btn btn-danger col-xs-5" ng-click="deactivate()">
+            <button class="btn btn-danger col-xs-6" ng-click="deactivate()">
                 Disconnect
             </button>
         </div>
     </div>
     <div collapse="!phone.showPad">
-        <numpad on-number="call(number)"></numpad>
+        <div class="panel panel-default screen">
+        </div>
+        <numpad class="col-xs-offset-1 col-xs-10" on-number="call(number)"></numpad>
         <div class="row center-block spaced">
-            <button class="btn btn-success col-xs-5" ng-click="accept()">
+            <button class="btn btn-success col-xs-4" ng-click="accept()">
                 Accept
             </button>
-            <button class="btn btn-danger col-xs-offset-2 col-xs-5" ng-click="reject()">
+            <button class="btn btn-danger col-xs-4" ng-click="reject()">
                 Reject
             </button>
+            <button class="btn btn-warning col-xs-4" ng-click="hangup()">
+                Hangup
+            </button>
         </div>
-        <div></div>
     </div>
 </div>

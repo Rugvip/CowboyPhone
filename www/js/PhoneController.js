@@ -36,15 +36,9 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
             ws.action({call: number});
         }
 
-        $scope.accept = function () {
-            console.log("Accept");
-            ws.action('accept');
-        }
-
-        $scope.reject = function () {
-            console.log("Reject");
-            ws.action('reject');
-        }
+        $scope.accept = function () {ws.action('accept'); }
+        $scope.reject = function () {ws.action('reject'); }
+        $scope.hangup = function () {ws.action('hangup'); }
     };
 
     $scope.deactivate = function () {
@@ -90,6 +84,7 @@ function openWebSocket($scope, callback) {
 
     return {
         action: function (action) {
+            console.log("Sending action ", action);
             ws.send(JSON.stringify({action: action}));
         }
     };
