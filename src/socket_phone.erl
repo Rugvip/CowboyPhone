@@ -33,7 +33,7 @@ process_message({struct, [{<<"action">>, <<"reject">>}]}, State) ->
 process_message({struct, [{<<"action">>, <<"hangup">>}]}, State) ->
     action(hangup, State), ok;
 process_message({struct, [{<<"action">>, {struct, [{<<"call">>, Number}]}}]}, State) ->
-    action({outbound, binary_to_list(Number)}, State);
+    action({outbound, binary_to_list(Number)}, State), ok;
 process_message({struct, [{<<"data">>, Data}]}, State) ->
     action({data, Data}, State), ok;
 process_message(_, _) ->
