@@ -33,13 +33,13 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
                 hangup: function () {
                     phone.lastAction = "hangup";
                 },
-                closed: function () {
-                    setState('none');
-                },
                 deleted: function () {
                     setState('none');
                     $scope.remove($scope.phone);
                 }
+            },
+            closed: function () {
+                setState('none');
             },
             data: function (data) {
                 console.log("got data: " + data);
@@ -113,7 +113,7 @@ function openWebSocket($scope, callbacks) {
 
     ws.onclose = function() {
         $scope.$apply(function () {
-            callbacks.actions.closed();
+            callbacks.closed && callbacks.closed();
         });
     };
 
