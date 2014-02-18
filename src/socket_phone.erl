@@ -29,9 +29,9 @@ websocket_init(_Any, Req, []) ->
 process_message({struct, [{<<"action">>, <<"accept">>}]}, State) ->
     action(accept, State), ok;
 process_message({struct, [{<<"action">>, <<"reject">>}]}, State) ->
-    action(accept, State), ok;
+    action(reject, State), ok;
 process_message({struct, [{<<"action">>, <<"hangup">>}]}, State) ->
-    action(accept, State), ok;
+    action(hangup, State), ok;
 process_message({struct, [{<<"action">>, {struct, [{<<"call">>, Number}]}}]}, State) ->
     action({outbound, binary_to_list(Number)}, State);
 process_message({struct, [{<<"data">>, Data}]}, State) ->
