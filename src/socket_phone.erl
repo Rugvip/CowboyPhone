@@ -9,24 +9,6 @@
 
 -record(st, {fsm}).
 
-
-
-
-
-
-
-
-
-
-
-%       ##      ##  ######
-%       ##  ##  ## ##    ##
-%       ##  ##  ## ##
-%       ##  ##  ##  ######
-%       ##  ##  ##       ##
-%       ##  ##  ## ##    ##
-%        ###  ###   ######
-
 init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
