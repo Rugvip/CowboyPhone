@@ -11,6 +11,8 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     phone.state = 'none';
     phone.showPad = false;
 
+    phone.lastAction = "";
+
     function setState(state) {
         phone.state = state;
 
@@ -20,15 +22,29 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     $scope.activate = function () {
         phone.state = "connecting";
 
-        var ws = openWebSocket($scope, function (data) {
-            if (!data) {
-                setState('none');
-                return;
-            }
-
-            if (data.state) {
-                setState(data.state);
-            }
+        var ws = openWebSocket($scope, {
+            actions: {
+                inbound: function (number) {
+                    phone.lastAction = "inbound from " + number;
+                },
+                accept: function () {
+                    phone.lastAction = "accept";
+                },
+                hangup: function () {
+                    phone.lastAction = "hangup";
+                },
+                closed: function () {
+                    setState('none');
+                },
+                deleted: function () {
+                    setState('none');
+                    $scope.remove($scope.phone);
+                }
+            },
+            data: function (data) {
+                console.log("got data: " + data);
+            },
+            state: setState
         });
 
         $scope.call = function (number) {
@@ -57,7 +73,7 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
 });
 
 
-function openWebSocket($scope, callback) {
+function openWebSocket($scope, callbacks) {
     if (!("WebSocket" in window)) {
         alert("This browser does not support WebSockets");
         return;
@@ -76,13 +92,28 @@ function openWebSocket($scope, callback) {
         console.log(number, " received: ", data);
 
         data && $scope.$apply(function () {
-            callback(data);
+            if (data.action && callbacks.actions) {
+                if (typeof data.action === 'object') {
+                    for (key in data.action) {
+                        callbacks.actions[key] && callbacks.actions[key](data.action[key]);
+                    }
+                } else {
+                    callbacks.actions[data.action] && callbacks.actions[data.action]();
+                }
+            }
+            if (data.state && callbacks.state) {
+                callbacks.state(data.state);
+            }
         });
+
+        if (data && data.data && callbacks.data) {
+            callbacks.data(data.data);
+        }
     };
 
     ws.onclose = function() {
         $scope.$apply(function () {
-            callback(null);
+            callbacks.actions.closed();
         });
     };
 
