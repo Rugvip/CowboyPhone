@@ -82,7 +82,7 @@ calling({remote, From, accept}, #st{remote = From} = State) ->
 
     reply(accept, connected, State);
 
-calling({remote, From, rejected}, #st{remote = From} = State) ->
+calling({remote, From, reject}, #st{remote = From} = State) ->
     reply(reject, idle, unset_remote(State));
 
 calling({remote, From, busy}, #st{remote = From} = State) ->
