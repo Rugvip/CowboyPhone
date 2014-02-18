@@ -11,8 +11,9 @@
     padding-bottom: 1em;
 }
 
-.phone > .inactive {
-    padding-bottom: 0;
+.spaced {
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .createPhone {
@@ -28,6 +29,10 @@
 
 .number-input > input {
     font-size: 1.4em;
+}
+
+.numpad {
+    margin-bottom: 1em;
 }
 
 h2 {

@@ -1,35 +1,50 @@
+var numpadShown = {
+    idle: true,
+    receiving: true,
+    calling: true,
+    connected: true
+};
+
 app.controller('PhoneCtrl', ['$scope', function($scope) {
     var phone = $scope.phone;
 
-    phone.isShown = phone.id % 2 == 1
-    phone.active = false;
+    phone.state = 'none';
+    phone.showPad = false;
 
-    console.log($scope);
-    phone.numpad = [[7,8,9],[4,5,6],[1,2,3],['clear', 0, 'del']];
+    function setState(state) {
+        phone.state = state;
 
-    var inputs = {
-        clear: function () {
-            phone.callNumber = "";
-        },
-        del: function () {
-            phone.callNumber = phone.callNumber.slice(0, -1);
-        }
-    };
-
-    $scope.numpadClick = function (n) {
-        if (inputs[n]) {
-            inputs[n]();
-        } else {
-            phone.callNumber += n;
-        }
-    };
-
-    $scope.call = function () {
-        console.log("Calling " + phone.callNumber);
+        phone.showPad = !!numpadShown[state];
     }
 
     $scope.activate = function () {
-        phone.active = true;
+        phone.state = "connecting";
+
+        var ws = openWebSocket($scope, function (data) {
+            if (!data) {
+                setState('none');
+                return;
+            }
+
+            if (data.state) {
+                setState(data.state);
+            }
+        });
+
+        $scope.call = function (number) {
+            console.log("Calling " + number);
+            ws.action({call: number});
+        }
+
+        $scope.accept = function () {
+            console.log("Accept");
+            ws.action('accept');
+        }
+
+        $scope.reject = function () {
+            console.log("Reject");
+            ws.action('reject');
+        }
     };
 
     $scope.deactivate = function () {
@@ -44,36 +59,38 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
 });
 
 
-/*(function () {
-    var ws;
-
-    send.onclick = function ()
-    {
-        ws.send("hello world!");
-        console.log('Message sent');
+function openWebSocket($scope, callback) {
+    if (!("WebSocket" in window)) {
+        alert("This browser does not support WebSockets");
+        return;
     }
 
-    openWs.onclick = function ()
-    {
-        console.log("asdasd");
-        if (!("WebSocket" in window)) {
-            alert("This browser does not support WebSockets");
-            return;
+    var number = $scope.phone.number;
+
+    var ws = new WebSocket("ws://localhost:8080/sock/" + number);
+
+    ws.onopen = function() {
+        console.log(number, " connected");
+    };
+
+    ws.onmessage = function (e) {
+        var data = JSON.parse(e.data);
+        console.log(number, " received: ", data);
+
+        data && $scope.$apply(function () {
+            callback(data);
+        });
+    };
+
+    ws.onclose = function() {
+        $scope.$apply(function () {
+            callback(null);
+        });
+    };
+
+    return {
+        action: function (action) {
+            ws.send(JSON.stringify({action: action}));
         }
-        ws = new WebSocket("ws://localhost:8080/sock");
-        ws.onopen = function() {
-            console.log('Connected');
-        };
-        ws.onmessage = function (evt)
-        {
-            var received_msg = evt.data;
-            console.log("Received: " + received_msg);
-            var txt = document.createTextNode("Simon says: " + received_msg );
-            document.getElementById('msgs').appendChild(txt);
-        };
-        ws.onclose = function()
-        {
-            console.log('Connection closed');
-        };
-    }
-}());*/
+    };
+}

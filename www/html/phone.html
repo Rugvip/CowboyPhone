@@ -3,83 +3,44 @@
     ng-controller="PhoneCtrl"
     ng-animate=" 'animate' "
 >
-    <div
-        ng-switch="phone.active"
-    >
-        <div
-            class="row"
-            ng-switch-when="true"
-        >
-            <h2
-                class="col-xs-6"
-            >
+    <div ng-switch="phone.state">
+        <div class="row" ng-switch-when="none">
+            <h2 class="col-xs-6">
+                {{ phone.number }}
+            </h2>
+            <button class="btn btn-success col-xs-5" ng-click="activate()">
+                Connect
+            </button>
+        </div>
+        <div class="row" ng-switch-when="connecting">
+            <h2 class="col-xs-6">
                 {{ phone.number }}
             </h2>
             <button
-                class="btn btn-danger col-xs-5"
-                type="button"
-                ng-click="deactivate()"
+                class="btn btn-info col-xs-5"
             >
-                Deactivate
+                Connecting
             </button>
         </div>
-        <div
-            class="row inactive"
-            ng-switch-when="false"
-        >
-            <h2
-                class="col-xs-6"
-            >
+        <div class="row" ng-switch-default>
+            <h2 class="col-xs-6">
                 {{ phone.number }}
             </h2>
-            <button
-                class="btn btn-success col-xs-5"
-                type="button"
-                ng-click="activate()"
-            >
-                Activate
+            <button class="btn btn-danger col-xs-5" ng-click="deactivate()">
+                Disconnect
             </button>
-        </div>
-        <div
-            class="animate-switch"
-            ng-switch-default
-        >
-            Switch failed
         </div>
     </div>
-    <div
-        class="active"
-        collapse="!phone.active"
-    >
-        <div
-            class="row btn-group center-block"
-            ng-repeat="row in phone.numpad"
-        >
-            <button
-                class="btn btn-default col-xs-4"
-                ng-click="numpadClick(n)"
-                ng-repeat="n in row"
-            >
-                {{ n }}
+    <div collapse="!phone.showPad">
+        <numpad on-number="call(number)"></numpad>
+        <div class="row center-block spaced">
+            <button class="btn btn-success col-xs-5" ng-click="accept()">
+                Accept
+            </button>
+            <button class="btn btn-danger col-xs-offset-2 col-xs-5" ng-click="reject()">
+                Reject
             </button>
         </div>
-
-        <div
-            class="number-input row btn-group center-block"
-        >
-            <input
-                class="col-xs-8"
-                ng-model="phone.callNumber"
-                min="10"
-                max="999999"
-            >
-            <button
-                class="btn btn-info col-xs-4"
-                type="button"
-                ng-click="call(phone)"
-            >
-                Call
-            </button>
-        </div>
+        <div></div>
     </div>
 </div>

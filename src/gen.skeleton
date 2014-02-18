@@ -1,0 +1,54 @@
+-module(hlr).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([attach/1]).
+-export([detach/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/2]).
+
+
+
+% Result = {ok,State} | {ok,State,Timeout} | {ok,State,hibernate}
+%  | {stop,Reason} | ignore
+init(Args) ->
+    io:format("init: ~p~n", [[Args]]),
+    ok.
+
+
+
+% Result = {reply,Reply,NewState} | {reply,Reply,NewState,Timeout}
+%   | {reply,Reply,NewState,hibernate}
+%   | {noreply,NewState} | {noreply,NewState,Timeout}
+%   | {noreply,NewState,hibernate}
+%   | {stop,Reason,Reply,NewState} | {stop,Reason,NewState}
+handle_call(Request, From, State) ->
+    io:format("handle_call: ~p~n", [[Request, From, State]]),
+    ok.
+
+
+
+% Result = {noreply,NewState} | {noreply,NewState,Timeout}
+%   | {noreply,NewState,hibernate}
+%   | {stop,Reason,NewState}
+handle_cast(Request, State) ->
+    io:format("handle_cast: ~p~n", [[Request, State]]),
+    ok.
+
+
+
+% Result = {noreply,NewState} | {noreply,NewState,Timeout}
+%   | {noreply,NewState,hibernate}
+%   | {stop,Reason,NewState}
+handle_info(Info, State) ->
+    io:format("handle_info: ~p~n", [[Info, State]]),
+    ok.
+
+
+
+terminate(Reason, State) ->
+    io:format("terminate: ~p~n", [[Reason, State]]),
+    ok.
+
+code_change(OldVsn, State, Extra) ->
+    io:format("code_change: ~p~n", [[OldVsn, State, Extra]]),
+    {ok, State}.

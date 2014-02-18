@@ -1,0 +1,28 @@
+<div
+    class="row btn-group center-block"
+    ng-repeat="row in numpad"
+>
+    <button
+        class="btn btn-default col-xs-4"
+        ng-click="click(n)"
+        ng-repeat="n in row"
+    >
+        {{ n }}
+    </button>
+</div>
+<div class="number-input row btn-group center-block">
+    <input
+        class="col-xs-8"
+        ng-model="input"
+        min="10"
+        max="999999"
+        ng-keydown="keydown($event)"
+    >
+    <button
+        class="btn btn-info col-xs-4"
+        type="button"
+        ng-click="commit()"
+    >
+        Call
+    </button>
+</div>
