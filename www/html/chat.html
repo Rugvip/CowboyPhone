@@ -1,0 +1,21 @@
+<div>
+    <div class="panel panel-default screen" >
+        <div ng-repeat="message in phone.messages" class="{{ message.side }}" >
+            {{ message.content }}
+        </div>
+        <div class="label label-default box state">
+            State: {{ phone.state }}
+        </div>
+        <div class="label label-default box remote">
+            Remote: {{ phone.remote || "none" }}
+        </div>
+    </div>
+    <div class="input-group chat-edit">
+        <input type="text" ng-model="input" ng-keydown="keydown($event)" class="form-control">
+        <span class="input-group-btn">
+            <button class="btn btn-default btn-xs" ng-click="commit()" type="button">
+                Send
+            </button>
+        </span>
+    </div>
+</div>

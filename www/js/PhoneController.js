@@ -12,26 +12,59 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
     phone.showPad = false;
 
     phone.lastAction = "";
+    phone.remote = "";
+
+    phone.messages = [];
 
     function setState(state) {
         phone.state = state;
 
         phone.showPad = !!numpadShown[state];
+
+        if (state === 'idle') {
+            phone.remote = "";
+        }
     }
 
     $scope.activate = function () {
         phone.state = "connecting";
 
+        var peer;
+
         var ws = openWebSocket($scope, {
             actions: {
                 inbound: function (number) {
-                    phone.lastAction = "inbound from " + number;
+                    phone.remote = number;
                 },
                 accept: function () {
-                    phone.lastAction = "accept";
+                    navigator.webkitGetUserMedia({audio: true}, function(stream) {
+                        peer = RTCPeerConnection({
+                            attachStream: stream,
+
+                            // onICE: function (candidate) {
+                            //     ws.data({ice: candidate});
+                            // },
+                            onRemoteStream: function (str) {
+                                console.log("STREAM ASDASD");
+                                aud.src = URL.createObjectURL(str);
+                                aud.play();
+                            },
+
+                            onOfferSDP: function (offerSDP) {
+                                console.log("maek offer");
+                                ws.data({offer: offerSDP});
+                            },
+
+                            onChannelMessage: function (event) {
+                                console.log("Channel message: ", event);
+                            },
+                            onChannelOpened: function (_RTCDataChannel) {
+                                console.log("we has data channel");
+                            }
+                        });
+                    });
                 },
                 hangup: function () {
-                    phone.lastAction = "hangup";
                 },
                 deleted: function () {
                     setState('none');
@@ -43,23 +76,79 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
             },
             data: function (data) {
                 console.log("got data: " + data);
+                if (data.message) {
+                    $scope.$apply(function () {
+                        phone.messages.push({
+                            content: data.message,
+                            side: 'right'
+                        });
+                    });
+                }
+                if (data.offer) {
+                    navigator.webkitGetUserMedia({audio: true}, function(stream) {
+                        var peer = RTCPeerConnection({
+                            attachStream: stream,
+
+                            offerSDP: data.offer,
+
+                            onICE: function (candidate) {
+                                ws.data({ice: candidate});
+                            },
+                            onRemoteStream: function (str) {
+                                console.log("STREAM ASD");
+                                aud.src = URL.createObjectURL(str);
+                                aud.play();
+                            },
+
+                            onAnswerSDP: function (answerSDP) {
+                                console.log("maek anwser");
+                                ws.data({answer: answerSDP});
+                            },
+
+                            onChannelMessage: function (event) {
+                                console.log("Channel message: ", event);
+                            },
+                            onChannelOpened: function (_RTCDataChannel) {
+                                console.log("we has data channel");
+                            }
+                        });
+                    });
+                }
+                if (data.ice) {
+                    peer.addICE({
+                        sdpMLineIndex: data.ice.sdpMLineIndex,
+                        candidate: data.ice.candidate
+                    });
+                }
+                if (data.answer) {
+                    peer.addAnswerSDP(data.answer);
+                }
             },
             state: setState
         });
 
         $scope.call = function (number) {
             console.log("Calling " + number);
-            if (phone.state === 'connected') {
-                ws.data("HI DAWG " + number);
-            } else {
-                ws.action({call: number});
-            }
+
+            phone.remote = number;
+            ws.action({call: number});
         }
+
+        $scope.send = function (message) {
+            if (phone.state === 'connected') {
+                phone.messages.push({
+                    content: message,
+                    side: 'left'
+                });
+            }
+            ws.data({message: message});
+        };
 
         $scope.accept = function () {ws.action('accept'); }
         $scope.reject = function () {ws.action('reject'); }
         $scope.hangup = function () {ws.action('hangup'); }
     };
+
 
     $scope.deactivate = function () {
         phone.active = false;
@@ -81,7 +170,7 @@ function openWebSocket($scope, callbacks) {
 
     var number = $scope.phone.number;
 
-    var ws = new WebSocket("ws://localhost:8080/sock/" + number);
+    var ws = new WebSocket("ws://" + location.host + "/sock/" + number);
 
     ws.onopen = function() {
         console.log(number, " connected");

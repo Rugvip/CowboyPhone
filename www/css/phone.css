@@ -27,7 +27,52 @@
     width: 17em;
     height: 8em;
     margin: 0 auto;
+    position: relative;
+}
+
+.screen > .box {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 50%;
+    margin: 0;
+}
+
+.chat-edit {
+    width: 17em;
+    height: 0.6em;
+    margin: 0 auto;
     margin-bottom: 1em;
+}
+
+.chat-edit > input[type="text"] {
+   height: 1.4em;
+   font-size: 1.1em;
+   line-height: 1.4em;
+}
+
+.screen > .left {
+    text-align: left;
+}
+
+.screen > .right {
+    text-align: right;
+}
+
+.screen > .left:before {
+    content: "> ";
+}
+
+.screen > .right:after {
+    content: " <";
+}
+
+.box.state {
+    left: 0;
+}
+
+.box.remote {
+    right: 0;
 }
 
 .number-input {
