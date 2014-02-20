@@ -2,8 +2,8 @@
 -export ([ard/0]).
 
 ard() ->
-    hlr:start_link(),
-    bsc_sup:start_link(),
+    catch hlr:start_link(),
+    catch bsc_sup:start_link(),
     [bsc_sup:add_controller([N]) || N <- "123456789"],
     Phones = [Phone || {ok, Phone} <- [phone:start_link([N]) || N <- "123456789"]],
     destroy_cpu(Phones, 10000),
