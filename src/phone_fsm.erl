@@ -6,7 +6,8 @@
 -record(st, {phone, remote, remote_mon, phone_mon}).
 
 start_link(PhoneNumber) ->
-    gen_fsm:start_link(?MODULE, PhoneNumber, [{debug, [trace]}]).
+    gen_fsm:start_link(?MODULE, PhoneNumber, []).
+    % gen_fsm:start_link(?MODULE, PhoneNumber, [{debug, [trace]}]).
 
 stop(FsmPid) -> gen_fsm:sync_send_all_state_event(FsmPid, stop).
 connect(FsmPid) -> gen_fsm:sync_send_all_state_event(FsmPid, connect).
@@ -162,8 +163,8 @@ handle_sync_event(connect, {Pid, _}, StateName, State) ->
 handle_sync_event(disconnect, {Pid, _}, StateName, #st{phone = Pid} = State) ->
     demonitor(State#st.phone_mon),
     {reply, ok, StateName, State#st{phone_mon = undefined, phone = undefined}};
-handle_sync_event(stop, _, StateName, State) ->
-    {stop, normal, StateName, State#st{phone = undefined}}.
+handle_sync_event(stop, _, _StateName, State) ->
+    {stop, normal, ok, State#st{phone = undefined}}.
 
 %% Phone -> Controller
 %   {local, {outbound, Number}} - make outbound call

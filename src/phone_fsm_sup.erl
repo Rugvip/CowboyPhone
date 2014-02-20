@@ -9,7 +9,7 @@ init([]) ->
     Fsm = {0, {?FSM, start_link, []}, temporary, 5000, worker, [?FSM]},
     {ok, {{simple_one_for_one, 10, 10}, [Fsm]}}.
 
-stop(Pid) -> exit(Pid, shutdown).
+stop(Pid) -> exit(Pid, normal), ok.
 
 add_controller(SupPid, Number) ->
     {ok, Pid} = supervisor:start_child(SupPid,  [Number]),

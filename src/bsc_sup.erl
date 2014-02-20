@@ -15,4 +15,5 @@ add_controller(Number) ->
     phone_fsm_sup:add_controller(?FSM_SUP, Number).
 
 remove_controller(Number) ->
-    phone_fsm_sup:remove_controller(?FSM_SUP, Number).
+    phone_fsm_sup:remove_controller(?FSM_SUP, Number),
+    {ok, self()}.
