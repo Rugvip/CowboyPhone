@@ -32,6 +32,8 @@ process_message({struct, [{<<"action">>, <<"reject">>}]}, State) ->
     action(reject, State), ok;
 process_message({struct, [{<<"action">>, <<"hangup">>}]}, State) ->
     action(hangup, State), ok;
+process_message({struct, [{<<"action">>, <<"disconnect">>}]}, _State) ->
+    phone_fsm:stop();
 process_message({struct, [{<<"action">>, {struct, [{<<"call">>, Number}]}}]}, State) ->
     action({outbound, binary_to_list(Number)}, State), ok;
 process_message({struct, [{<<"data">>, Data}]}, State) ->

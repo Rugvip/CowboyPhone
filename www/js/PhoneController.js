@@ -26,7 +26,7 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
         }
     }
 
-    $scope.activate = function () {
+    $scope.connect = function () {
         phone.state = "connecting";
 
         var peer;
@@ -41,9 +41,9 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
                         peer = RTCPeerConnection({
                             attachStream: stream,
 
-                            // onICE: function (candidate) {
-                            //     ws.data({ice: candidate});
-                            // },
+                            onICE: function (candidate) {
+                                ws.data({ice: candidate});
+                            },
                             onRemoteStream: function (str) {
                                 console.log("STREAM ASDASD");
                                 aud.src = URL.createObjectURL(str);
@@ -134,6 +134,10 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
             ws.action({call: number});
         }
 
+        $scope.disconnect = function () {
+            ws.action('disconnect');
+        };
+
         $scope.send = function (message) {
             if (phone.state === 'connected') {
                 phone.messages.push({
@@ -147,11 +151,7 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
         $scope.accept = function () {ws.action('accept'); }
         $scope.reject = function () {ws.action('reject'); }
         $scope.hangup = function () {ws.action('hangup'); }
-    };
-
-
-    $scope.deactivate = function () {
-        phone.active = false;
+        $scope.disconnect = function () {ws.action('disconnect'); }
     };
 }])
 .directive('phone', function () {

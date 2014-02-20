@@ -9,7 +9,7 @@ init([]) ->
     Fsm = {0, {?FSM, start_link, []}, temporary, 5000, worker, [?FSM]},
     {ok, {{simple_one_for_one, 10, 10}, [Fsm]}}.
 
-stop(Pid) -> supervisor:stop(Pid).
+stop(Pid) -> exit(Pid, shutdown).
 
 add_controller(SupPid, Number) ->
     {ok, Pid} = supervisor:start_child(SupPid,  [Number]),
@@ -17,7 +17,7 @@ add_controller(SupPid, Number) ->
 
 remove_controller(SupPid, Number) ->
     {ok, Pid} = hlr:lookup_id(Number),
-    exit(Pid, normal),
+    % exit(Pid, normal),
     ok = supervisor:terminate_child(SupPid, Pid),
     io:format("terminating ~p: ~p~n", [Pid, Number]),
     ok.
