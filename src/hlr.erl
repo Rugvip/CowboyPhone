@@ -8,7 +8,10 @@
 -define(DB_IMPL, hlr_db).
 
 start_link() ->
-    gen_server:start_link({global, ?MODULE}, ?MODULE, [], []), {ok, self()}.
+    case gen_server:start_link({global, ?MODULE}, ?MODULE, [], []) of
+        {ok, Pid} -> {ok, Pid};
+        {error, {already_started, Pid}} -> {ok, Pid}
+    end.
 
 attach(Number) when is_list(Number) ->
     gen_server:call({global, ?MODULE}, {attach, Number}).
