@@ -1,0 +1,2 @@
+#! /bin/bash
+erl -sname hlr_node@localhost -cookie monster -pa ebin -boot start_sasl -s hlr start_link

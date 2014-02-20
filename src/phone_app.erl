@@ -2,8 +2,13 @@
 -behavior(application).
 
 -export([start/0]).
+-export([start/1]).
 -export([start/2]).
 -export([stop/1]).
+
+start([Node]) ->
+    net_kernel:connect(Node),
+    start().
 
 start() ->
     application:start(crypto),

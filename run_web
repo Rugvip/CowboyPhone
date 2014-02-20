@@ -1,0 +1,2 @@
+#! /bin/bash
+erl -sname web_node@localhost -cookie monster -pa deps/*/ebin -pa ebin -boot start_sasl -s phone_app start hlr_node@localhost
