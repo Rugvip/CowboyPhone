@@ -1,4 +1,4 @@
--module(socket_phone).
+-module(phone_socket).
 -behaviour(cowboy_websocket_handler).
 
 % Behaviour cowboy_http_handler

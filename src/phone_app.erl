@@ -26,8 +26,8 @@ start(_Type, _Args) ->
                 {"/js/[...]", cowboy_static, {dir, "www/js", [{mimetypes, cow_mimetypes, all}]}},
                 {"/css/[...]", cowboy_static, {dir, "www/css", [{mimetypes, cow_mimetypes, all}]}},
                 {"/html/[...]", cowboy_static, {dir, "www/html", [{mimetypes, cow_mimetypes, all}]}},
-                {"/api/phone", phone_rest, []},
-                {"/sock/:number", socket_phone, []},
+                {"/api/phone/[:number]", hlr_rest, []},
+                {"/sock/:number", phone_socket, []},
                 {'_', cowboy_static, {file, "www/404.html", [{mimetypes, cow_mimetypes, all}]}}
             ]}
         ])}]}
