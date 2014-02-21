@@ -3,7 +3,7 @@
         <div ng-repeat="message in phone.messages" class="{{ message.side }}" >
             {{ message.content }}
         </div>
-        <div class="label label-default box state">
+        <div class="label {{ phone.state | stateClass }} box state">
             State: {{ phone.state }}
         </div>
         <div class="label label-default box remote">

@@ -1,3 +1,10 @@
+var classes = {
+    idle: 'label-default',
+    calling: 'label-primary',
+    receiving: 'label-warning',
+    connected: 'label-success'
+};
+
 app.directive('chat', function () {
     return {
         restrict: 'E',
@@ -23,5 +30,9 @@ app.directive('chat', function () {
                 }
             }
         }]
+    };
+}).filter('stateClass', function () {
+    return function (state) {
+        return classes[state] || "";
     };
 });
