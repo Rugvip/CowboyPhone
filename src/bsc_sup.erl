@@ -7,8 +7,8 @@
 start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    Hlr = {?HLR, {?HLR, start_link, []}, permanent, 5000, worker, [?HLR, hlr_db]},
-    FsmSup = {?FSM_SUP, {?FSM_SUP, start_link, []}, permanent, infinity, worker, [?FSM_SUP]},
+    Hlr = {?HLR, {?HLR, start_link, []}, permanent, 5000, worker, [?HLR]},
+    FsmSup = {?FSM_SUP, {?FSM_SUP, start_link, []}, permanent, 10000, supervisor, [?FSM_SUP]},
     {ok, {{one_for_one, 10, 10}, [Hlr, FsmSup]}}.
 
 add_controller(Number) ->
