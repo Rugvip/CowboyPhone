@@ -37,32 +37,32 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
                     phone.remote = number;
                 },
                 accept: function () {
-                    navigator.webkitGetUserMedia({audio: true}, function(stream) {
-                        peer = RTCPeerConnection({
-                            attachStream: stream,
+                    // navigator.webkitGetUserMedia({audio: true}, function(stream) {
+                    //     peer = RTCPeerConnection({
+                    //         attachStream: stream,
 
-                            onICE: function (candidate) {
-                                ws.data({ice: candidate});
-                            },
-                            onRemoteStream: function (str) {
-                                console.log("STREAM ASDASD");
-                                aud.src = URL.createObjectURL(str);
-                                aud.play();
-                            },
+                    //         onICE: function (candidate) {
+                    //             ws.data({ice: candidate});
+                    //         },
+                    //         onRemoteStream: function (str) {
+                    //             console.log("STREAM ASDASD");
+                    //             aud.src = URL.createObjectURL(str);
+                    //             aud.play();
+                    //         },
 
-                            onOfferSDP: function (offerSDP) {
-                                console.log("maek offer");
-                                ws.data({offer: offerSDP});
-                            },
+                    //         onOfferSDP: function (offerSDP) {
+                    //             console.log("maek offer");
+                    //             ws.data({offer: offerSDP});
+                    //         },
 
-                            onChannelMessage: function (event) {
-                                console.log("Channel message: ", event);
-                            },
-                            onChannelOpened: function (_RTCDataChannel) {
-                                console.log("we has data channel");
-                            }
-                        });
-                    });
+                    //         onChannelMessage: function (event) {
+                    //             console.log("Channel message: ", event);
+                    //         },
+                    //         onChannelOpened: function (_RTCDataChannel) {
+                    //             console.log("we has data channel");
+                    //         }
+                    //     });
+                    // });
                 },
                 hangup: function () {
                 },
@@ -84,45 +84,45 @@ app.controller('PhoneCtrl', ['$scope', function($scope) {
                         });
                     });
                 }
-                if (data.offer) {
-                    navigator.webkitGetUserMedia({audio: true}, function(stream) {
-                        var peer = RTCPeerConnection({
-                            attachStream: stream,
+                // if (data.offer) {
+                //     navigator.webkitGetUserMedia({audio: true}, function(stream) {
+                //         var peer = RTCPeerConnection({
+                //             attachStream: stream,
 
-                            offerSDP: data.offer,
+                //             offerSDP: data.offer,
 
-                            onICE: function (candidate) {
-                                ws.data({ice: candidate});
-                            },
-                            onRemoteStream: function (str) {
-                                console.log("STREAM ASD");
-                                aud.src = URL.createObjectURL(str);
-                                aud.play();
-                            },
+                //             onICE: function (candidate) {
+                //                 ws.data({ice: candidate});
+                //             },
+                //             onRemoteStream: function (str) {
+                //                 console.log("STREAM ASD");
+                //                 aud.src = URL.createObjectURL(str);
+                //                 aud.play();
+                //             },
 
-                            onAnswerSDP: function (answerSDP) {
-                                console.log("maek anwser");
-                                ws.data({answer: answerSDP});
-                            },
+                //             onAnswerSDP: function (answerSDP) {
+                //                 console.log("maek anwser");
+                //                 ws.data({answer: answerSDP});
+                //             },
 
-                            onChannelMessage: function (event) {
-                                console.log("Channel message: ", event);
-                            },
-                            onChannelOpened: function (_RTCDataChannel) {
-                                console.log("we has data channel");
-                            }
-                        });
-                    });
-                }
-                if (data.ice) {
-                    peer.addICE({
-                        sdpMLineIndex: data.ice.sdpMLineIndex,
-                        candidate: data.ice.candidate
-                    });
-                }
-                if (data.answer) {
-                    peer.addAnswerSDP(data.answer);
-                }
+                //             onChannelMessage: function (event) {
+                //                 console.log("Channel message: ", event);
+                //             },
+                //             onChannelOpened: function (_RTCDataChannel) {
+                //                 console.log("we has data channel");
+                //             }
+                //         });
+                //     });
+                // }
+                // if (data.ice) {
+                //     peer.addICE({
+                //         sdpMLineIndex: data.ice.sdpMLineIndex,
+                //         candidate: data.ice.candidate
+                //     });
+                // }
+                // if (data.answer) {
+                //     peer.addAnswerSDP(data.answer);
+                // }
             },
             state: setState
         });
