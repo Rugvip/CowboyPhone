@@ -11,6 +11,8 @@
             <button class="btn btn-success col-xs-6" ng-click="connect()">
                 Connect
             </button>
+            <span class="glyphicon glyphicon-remove close-button" ng-click="remove(phone)">
+            </span>
         </div>
         <div class="row center-block" ng-switch-when="connecting">
             <h2 class="col-xs-6">
@@ -21,6 +23,8 @@
             >
                 Connecting
             </button>
+            <span class="glyphicon glyphicon-remove close-button" ng-click="remove(phone)">
+            </span>
         </div>
         <div class="row center-block" ng-switch-default>
             <h2 class="col-xs-6">
@@ -29,6 +33,8 @@
             <button class="btn btn-danger col-xs-6" ng-click="disconnect()">
                 Disconnect
             </button>
+            <span class="glyphicon glyphicon-remove close-button" ng-click="remove(phone)">
+            </span>
         </div>
     </div>
     <div collapse="!phone.showPad">

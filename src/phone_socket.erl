@@ -33,7 +33,7 @@ process_message({struct, [{<<"action">>, <<"reject">>}]}, State) ->
 process_message({struct, [{<<"action">>, <<"hangup">>}]}, State) ->
     action(hangup, State), ok;
 process_message({struct, [{<<"action">>, <<"disconnect">>}]}, _State) ->
-    phone_fsm:stop();
+    stop;
 process_message({struct, [{<<"action">>, {struct, [{<<"call">>, Number}]}}]}, State) ->
     action({outbound, binary_to_list(Number)}, State), ok;
 process_message({struct, [{<<"data">>, Data}]}, State) ->
@@ -49,6 +49,7 @@ action(Action, #st{fsm = Fsm}) ->
 websocket_handle({text, Msg}, Req, State) ->
     io:format("Received: ~p~n", [Msg]),
     case process_message(mochijson2:decode(Msg), State) of
+        stop -> {shutdown, Req, State};
         ok -> {ok, Req, State, hibernate};
         Reply -> {reply, {text, Reply}, Req, State, hibernate}
     end;
@@ -63,7 +64,8 @@ websocket_handle(_Any, Req, State) ->
 websocket_info(stop, Req, State) -> {shutdown, Req, State};
 websocket_info({init, ok}, Req, #st{fsm = Fsm} = State) ->
     Ref = monitor(process, Fsm),
-    reply(Req, State#st{fsm_mon = Ref}, idle, undefined);
+    {ok, Req, State#st{fsm_mon = Ref}};
+    % reply(Req, State#st{fsm_mon = Ref}, idle, undefined);
 websocket_info({init, busy}, Req, State) ->
     reply(Req, State, none, busy);
 websocket_info({switch_state, NextState, Action}, Req, State) ->

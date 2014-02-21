@@ -6,8 +6,8 @@
 -record(st, {phone, remote, remote_mon, phone_mon}).
 
 start_link(PhoneNumber) ->
-    gen_fsm:start_link(?MODULE, PhoneNumber, []).
-    % gen_fsm:start_link(?MODULE, PhoneNumber, [{debug, [trace]}]).
+    % gen_fsm:start_link(?MODULE, PhoneNumber, []).
+    gen_fsm:start_link(?MODULE, PhoneNumber, [{debug, [trace]}]).
 
 stop(FsmPid) -> gen_fsm:sync_send_all_state_event(FsmPid, stop).
 connect(FsmPid) -> gen_fsm:sync_send_all_state_event(FsmPid, connect).
@@ -16,7 +16,11 @@ disconnect(FsmPid) -> gen_fsm:sync_send_all_state_event(FsmPid, disconnect).
 send_to_local(FsmPid, Action) -> gen_fsm:send_event(FsmPid, {local, Action}).
 send_to_remote(Pid, Msg) -> gen_fsm:send_event(Pid, {remote, self(), Msg}).
 
+% send action to fsm
+
 action(FsmPid, Action) -> send_to_local(FsmPid, Action).
+
+% sends messages to remote
 
 busy(RemotePid)    -> send_to_remote(RemotePid, busy).
 reject(RemotePid)  -> send_to_remote(RemotePid, reject).
@@ -25,11 +29,16 @@ hangup(RemotePid)  -> send_to_remote(RemotePid, hangup).
 inbound(RemotePid) -> send_to_remote(RemotePid, inbound).
 data(RemotePid, Data) -> send_to_remote(RemotePid, {data, Data}).
 
+
+% send message to connected phone
+
+reply(_, NextState, #st{phone = undefined} = State) ->
+    {next_state, NextState, State};
 reply(Msg, NextState, #st{phone = Phone} = State) ->
     phone:reply(Phone, Msg),
     switch_state(NextState, Msg, State).
 
-% gen_fsm
+% set/unset remote pid
 
 set_remote(State, Remote) ->
     Ref = monitor(process, Remote),
@@ -39,6 +48,10 @@ unset_remote(State) ->
     demonitor(State#st.remote_mon),
     State#st{remote_mon = undefined, remote = undefined}.
 
+% switch state and notify phone
+
+switch_state(_, NextState, #st{phone = undefined} = State) ->
+    {next_state, NextState, State};
 switch_state(NextState, Action, #st{phone = Phone} = State) ->
     Phone ! {switch_state, NextState, Action},
     {next_state, NextState, State}.
@@ -80,7 +93,6 @@ calling({remote, From, inbound}, State) ->
     busy(From), {next_state, calling, State};
 
 calling({remote, From, accept}, #st{remote = From} = State) ->
-
     reply(accept, connected, State);
 
 calling({remote, From, reject}, #st{remote = From} = State) ->
@@ -125,6 +137,9 @@ connected({local, {data, Data}}, State) ->
     data(State#st.remote, Data),
     {next_state, connected, State};
 
+connected({remote, _, _}, #st{phone = undefined} = State) ->
+    {next_state, connected, State};
+
 connected({remote, _, {data, _} = Data}, State) ->
     State#st.phone ! Data,
     {next_state, connected, State};
@@ -133,17 +148,15 @@ connected(_, State) ->
     {next_state, connected, State}.
 
 
+% remote fsm down
+
 handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{remote_mon = Ref} = State) ->
     switch_state(idle, remote_down, State#st{remote_mon = undefined, remote = undefined});
-handle_info({'DOWN', Ref, process, _, _}, _StateName, #st{phone_mon = Ref} = State) ->
-    case State#st.remote_mon of
-        undefined -> ok;
-        Mon -> demonitor(Mon)
-    end,
-    {next_state, idle, State#st{
-        phone_mon = undefined, phone = undefined,
-        remote_mon = undefined, remote = undefined
-    }};
+
+% phone down
+handle_info({'DOWN', Ref, process, _, _}, StateName, #st{phone_mon = Ref} = State) ->
+    {next_state, StateName, State#st{phone_mon = undefined, phone = undefined}};
+
 handle_info(Info, StateName, State) ->
     io:format("Got info: ~p~n", [Info]),
     {next_state, StateName, State}.
@@ -153,16 +166,22 @@ terminate(_Reason, _StateName, _State) ->
     hlr:detach(),
     ok.
 
+% phone connect request
 handle_sync_event(connect, {Pid, _}, StateName, State) ->
     case State#st.phone of
         undefined ->
             Mon = monitor(process, Pid),
+            Pid ! {switch_state, StateName, undefined},
             {reply, ok, StateName, State#st{phone = Pid, phone_mon = Mon}};
         _ -> {reply, busy, StateName, State}
     end;
+
+% disconnect phone
 handle_sync_event(disconnect, {Pid, _}, StateName, #st{phone = Pid} = State) ->
     demonitor(State#st.phone_mon),
     {reply, ok, StateName, State#st{phone_mon = undefined, phone = undefined}};
+
+% stop fsm
 handle_sync_event(stop, _, _StateName, State) ->
     {stop, normal, ok, State#st{phone = undefined}}.
 

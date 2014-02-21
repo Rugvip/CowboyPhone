@@ -12,13 +12,19 @@
    <script src="//cdnjs.cloudflare.com/ajax/libs/ng-grid/2.0.7/ng-grid.min.js"></script>
 </head>
 <body ng-controller="PhoneListCtrl">
-    <div class="panel panel-default createPhone center-block">
-        <input ng-model="addPhone" ng-required="true" type="number" min="10" max="999999">
-        <button ng-click="add(addPhone)" type="button" class="btn btn-info btn-lg pull-right">Add</button>
+    <div class="row">
+        <div class="panel panel-default createPhone col-xs-offset-5 col-md-2">
+            <input ng-model="addPhone" ng-required="true" type="number" min="1" max="9999">
+            <button ng-click="add(addPhone)" type="button" class="btn btn-info btn-lg pull-right">Add</button>
+        </div>
+        <div ng-show="showError" class="col-xs-5 error-message">
+            <h3>Number should contain 1-4 digits</h3>
+        </div>
     </div>
     <div class="container-fluid">
         <phone ng-repeat="phone in phones" class="animate"></phone>
     </div>
+
     <audio id="aud"></audio>
 </body>
 <footer>

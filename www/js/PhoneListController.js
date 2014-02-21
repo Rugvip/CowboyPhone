@@ -3,7 +3,8 @@ app.controller('PhoneListCtrl',
     function($scope ,  $http) {
 
     $scope.phones = [];
-    $scope.isCollapsed = false
+    $scope.showError = false;
+
     $http.get('/api/phone')
         .success(function (data, status, headers) {
             console.log(data);
@@ -14,17 +15,29 @@ app.controller('PhoneListCtrl',
         });
 
     $scope.remove = function (phone) {
-        $scope.phones.splice($scope.phones.indexOf(phone), 1);
+        $http.delete('/api/phone/' + phone.number)
+            .success(function (data, status, headers) {
+                var i = $scope.phones.indexOf(phone);
+                if (i >= 0) {
+                    $scope.phones.splice(i, 1);
+                }
+            })
+            .error(function (data, status) {
+                alert("Phone delete failed: " + status);
+            });
     };
     $scope.add = function (number) {
         if (!number) {
-            number = (Math.random()+"").substr(5, 5);
+            console.log("asdasd");
+            $scope.showError = true;
+            return;
+        } else {
+            $scope.showError = false;
         }
 
-        $http.post('/api/phone', {number: "" + number}, {
+        $http.put('/api/phone/' + number, {}, {
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json'
             }
         })
             .success(function (data, status, headers) {
@@ -32,7 +45,9 @@ app.controller('PhoneListCtrl',
                 $scope.phones.push(data);
             })
             .error(function (data, status) {
-                alert("Phone fetch failed: " + status);
+                if (status != '409') {
+                    alert("Phone fetch failed: " + status);
+                }
             });
         $scope.addPhone = "";
     }
