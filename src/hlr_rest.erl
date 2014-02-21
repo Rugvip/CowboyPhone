@@ -7,6 +7,7 @@
 -export([content_types_accepted/2]).
 -export([content_types_provided/2]).
 -export([delete_resource/2]).
+-export([is_conflict/2]).
 -export([on_put_request/2]).
 -export([on_get_request/2]).
 
@@ -28,6 +29,16 @@ on_get_request(Req, State) ->
     {ok, List} = hlr:list_numbers(),
     Json = mochijson2:encode([number_to_json(Number) || Number <- List]),
     {Json, Req, State}.
+
+% PUT
+is_conflict(Req, State) ->
+    {NumberBin, Req2} = cowboy_req:binding(number, Req, ""),
+    Number = binary_to_list(NumberBin),
+    Conflict = case hlr:lookup_id(Number) of
+        {ok, _} -> true;
+        _ -> false
+    end,
+    {Conflict, Req2, State}.
 
 % PUT
 on_put_request(Req, State) ->
